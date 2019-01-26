@@ -1,27 +1,22 @@
-Fabric CA User's Guide
+Fabric CA用户指南
 ======================
 
-The Hyperledger Fabric CA is a Certificate Authority (CA)
-for Hyperledger Fabric.
+Hyperledger Fabric CA是Hyperledger Fabric的一种证书授权机构（CA）。
 
-It provides features such as:
+它提供如下功能：
 
-  * registration of identities, or connects to LDAP as the user
-    registry
-  * issuance of Enrollment Certificates (ECerts)
-  * certificate renewal and revocation
+  * 注册身份，或连接到LDAP作为用户注册表
+  * 签发登记证书（Enrollment Certificates，ECerts）
+  * 证书续签/更新和撤销
 
-Hyperledger Fabric CA consists of both a server and a client component as
-described later in this document.
+Hyperledger Fabric CA由服务器和客户端组件组成，本文后面将对此进行描述。
 
-For developers interested in contributing to Hyperledger Fabric CA, see the
-`Fabric CA repository <https://github.com/hyperledger/fabric-ca>`__ for more
-information.
+对于有兴趣为Hyperledger Fabric CA做出贡献的开发人员，请参阅 `Fabric CA repository <https://github.com/hyperledger/fabric-ca>`__ 以获取更多信息。
 
 
 .. _Back to Top:
 
-Table of Contents
+目录
 -----------------
 
 1. `Overview`_
@@ -77,30 +72,17 @@ Table of Contents
 Overview
 --------
 
-The diagram below illustrates how the Hyperledger Fabric CA server fits into the
-overall Hyperledger Fabric architecture.
+下图说明了Hyperledger Fabric CA服务器如何适应整个Hyperledger Fabric架构。
 
 .. image:: ./images/fabric-ca.png
 
-There are two ways of interacting with a Hyperledger Fabric CA server:
-via the Hyperledger Fabric CA client or through one of the Fabric SDKs.
-All communication to the Hyperledger Fabric CA server is via REST APIs.
-See `fabric-ca/swagger/swagger-fabric-ca.json` for the swagger documentation
-for these REST APIs.
-You may view this documentation via the http://editor2.swagger.io online editor.
+有两种与Hyperledger Fabric CA服务器交互的方式：通过Hyperledger Fabric CA客户端或通过其中一个Fabric SDK。与Hyperledger Fabric CA服务器的所有通信都是通过REST API进行的。有关这些REST API的swagger文档，请参阅 `fabric-ca/swagger/swagger-fabric-ca.json` 。你可以通过 http://editor2.swagger.io 在线编辑器查看此文档。
 
-The Hyperledger Fabric CA client or SDK may connect to a server in a cluster
-of Hyperledger Fabric CA servers.   This is illustrated in the top right section
-of the diagram. The client routes to an HA Proxy endpoint which load balances
-traffic to one of the fabric-ca-server cluster members.
+Hyperledger Fabric CA客户端或SDK可以连接到一个Hyperledger Fabric CA服务器集群中的一台服务器。这在图的右上部分中说明。客户端路由到HA Proxy端点，该端点负载均衡到其中一个fabric-ca-server集群成员的流量。
 
-All Hyperledger Fabric CA servers in a cluster share the same database for
-keeping track of identities and certificates.  If LDAP is configured, the identity
-information is kept in LDAP rather than the database.
+集群中的所有Hyperledger Fabric CA服务器共享相同的数据库，以跟踪身份和证书。如果配置了LDAP，则身份信息将保留在LDAP而不是数据库中。
 
-A server may contain multiple CAs.  Each CA is either a root CA or an
-intermediate CA.  Each intermediate CA has a parent CA which is either a
-root CA or another intermediate CA.
+一个服务器可能包含多个CA. 每个CA都是根CA或中间CA. 每个中间CA都有一个父CA，它是根CA或另一个中间CA.
 
 Getting Started
 ---------------
@@ -108,42 +90,38 @@ Getting Started
 Prerequisites
 ~~~~~~~~~~~~~~~
 
--  Go 1.10+ installation
--  ``GOPATH`` environment variable is set correctly
-- libtool and libtdhl-dev packages are installed
+-  Go 1.10+ 安装
+-  ``GOPATH`` 环境变量设置正确
+- 安装了libtool和libtdhl-dev包
 
-The following installs the libtool dependencies on Ubuntu:
+以下安装Ubuntu上的libtool依赖项：
 
 .. code:: bash
 
    sudo apt install libtool libltdl-dev
 
-The following installs the libtool dependencies on MacOSX:
+以下安装MacOSX上的libtool依赖项：
 
 .. code:: bash
 
    brew install libtool
 
-.. note:: libtldl-dev is not necessary on MacOSX if you instal
-          libtool via Homebrew
+.. note:: 如果你通过Homebrew安装libtool，则在MacOSX上不需要libtldl-dev
 
-For more information on libtool, see https://www.gnu.org/software/libtool.
+有关libtool的更多信息，请参阅 https://www.gnu.org/software/libtool.
 
-For more information on libltdl-dev, see https://www.gnu.org/software/libtool/manual/html_node/Using-libltdl.html.
+有关libltdl-dev的更多信息，请参阅 https://www.gnu.org/software/libtool/manual/html_node/Using-libltdl.html.
 
 Install
 ~~~~~~~
 
-The following installs both the `fabric-ca-server` and `fabric-ca-client` binaries
-in $GOPATH/bin.
+以下在$GOPATH/bin中安装了 `fabric-ca-server` 和 `fabric-ca-client` 二进制文件。
 
 .. code:: bash
 
     go get -u github.com/hyperledger/fabric-ca/cmd/...
 
-Note: If you have already cloned the fabric-ca repository, make sure you are on the
-master branch before running the 'go get' command above. Otherwise, you might see the
-following error:
+Note: 如果你已经克隆了fabric-ca仓库，请确保在运行上面的 'go get' 命令之前，你位于master分支上。否则，你可能会看到以下错误：
 
 ::
 
@@ -163,18 +141,15 @@ following error:
 Start Server Natively
 ~~~~~~~~~~~~~~~~~~~~~
 
-The following starts the `fabric-ca-server` with default settings.
+以下内使用默认设置启动 `fabric-ca-server` 。
 
 .. code:: bash
 
     fabric-ca-server start -b admin:adminpw
 
-The `-b` option provides the enrollment ID and secret for a bootstrap
-administrator; this is required if LDAP is not enabled with the "ldap.enabled"
-setting.
+`-b` 选项提供了一个引导管理员的登记ID和密码; 如果未使用 "ldap.enabled" 设置启用LDAP，则 `-b` 选项是必须的。
 
-A default configuration file named `fabric-ca-server-config.yaml`
-is created in the local directory which can be customized.
+一个名为 `fabric-ca-server-config.yaml` 的默认配置文件在本地目录中被创建，该文件可以自定义。
 
 Start Server via Docker
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -182,16 +157,14 @@ Start Server via Docker
 Docker Hub
 ^^^^^^^^^^^^
 
-Go to: https://hub.docker.com/r/hyperledger/fabric-ca/tags/
+访问： https://hub.docker.com/r/hyperledger/fabric-ca/tags/
 
-Find the tag that matches the architecture and version of fabric-ca
-that you want to pull.
+找到与你要pull的fabric-ca的架构和版本相匹配的tag。
 
-Navigate to `$GOPATH/src/github.com/hyperledger/fabric-ca/docker/server`
-and open up docker-compose.yml in an editor.
+导航到 `$GOPATH/src/github.com/hyperledger/fabric-ca/docker/server`
+并在编辑器中打开docker-compose.yml.
 
-Change the `image` line to reflect the tag you found previously. The file
-may look like this for an x86 architecture for version beta.
+更改 `image` 行以反映你之前找到的tag. 对于版本为beta的x86架构，该文件可能如下所示。
 
 .. code:: yaml
 
@@ -206,8 +179,7 @@ may look like this for an x86 architecture for version beta.
         - "./fabric-ca-server:/etc/hyperledger/fabric-ca-server"
       command: sh -c 'fabric-ca-server start -b admin:adminpw'
 
-Open up a terminal in the same directory as the docker-compose.yml file
-and execute the following:
+在docker-compose.yml文件所在的目录中打开一个终端并执行以下命令：
 
 .. code:: bash
 
@@ -216,11 +188,12 @@ and execute the following:
 This will pull down the specified fabric-ca image in the compose file
 if it does not already exist, and start an instance of the fabric-ca
 server.
+这将把在compose文件中指定的fabric-ca image pull下来（如果它尚不存在），并启动一个fabric-ca服务器的实例。
 
 Building Your Own Docker image
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-You can build and start the server via docker-compose as shown below.
+你可以通过docker-compose构建和启动服务器，如下所示。
 
 .. code:: bash
 
@@ -229,8 +202,7 @@ You can build and start the server via docker-compose as shown below.
     cd docker/server
     docker-compose up -d
 
-The hyperledger/fabric-ca docker image contains both the fabric-ca-server and
-the fabric-ca-client.
+hyperledger/fabric-ca docker image包含fabric-ca-server和fabric-ca-client。
 
 .. code:: bash
 
@@ -242,8 +214,7 @@ the fabric-ca-client.
 Explore the Fabric CA CLI
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This section simply provides the usage messages for the Fabric CA server and client
-for convenience.  Additional usage information is provided in following sections.
+为方便起见，本节仅简单为Fabric CA服务器和客户端提供使用消息。之后的部分提供了其他使用信息。
 
 The following links shows the :doc:`Server Command Line <servercli>` and
 :doc:`Client Command Line <clientcli>`.
