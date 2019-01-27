@@ -386,33 +386,17 @@ Starting the server
 
 如果服务器之前没有被初始化，它将在第一次启动时自行初始化。在此初始化期间，服务器将生成ca-cert.pem和ca-key.pem文件（如果它们尚不存在），并且还将创建一个默认配置文件（如果它尚不存在）。请参阅 `Initialize the Fabric CA server <#initialize>`__ 部分。
 
-Unless the Fabric CA server is configured to use LDAP, it must be
-configured with at least one pre-registered bootstrap identity to enable you
-to register and enroll other identities. The ``-b`` option specifies the
-name and password for a bootstrap identity.
+除非Fabric CA服务器被配置为使用LDAP，否则必须至少配置一个预先注册的引导身份，以便注册和登记其他身份。 ``-b`` 选项指定引导身份的名称和密码。
 
-To cause the Fabric CA server to listen on ``https`` rather than
-``http``, set ``tls.enabled`` to ``true``.
+使Fabric CA服务器监听 ``https`` 而不是 ``http`` ，设置 ``tls.enabled`` 为 ``true`` 。
 
-SECURITY WARNING: The Fabric CA server should always be started with TLS
-enabled (``tls.enabled`` set to true). Failure to do so leaves the
-server vulnerable to an attacker with access to network traffic.
+安全警告：Fabric CA服务器应始终在启用TLS的情况下启动（ ``tls.enabled`` 设置为true）。如果不这样做，服务器就容易受到访问网络流量的攻击者的攻击。
 
-To limit the number of times that the same secret (or password) can be
-used for enrollment, set the ``registry.maxenrollments`` in the configuration
-file to the appropriate value. If you set the value to 1, the Fabric CA
-server allows passwords to only be used once for a particular enrollment
-ID. If you set the value to -1, the Fabric CA server places no limit on
-the number of times that a secret can be reused for enrollment. The
-default value is -1. Setting the value to 0, the Fabric CA server will
-disable enrollment for all identities and registration of identities will
-not be allowed.
+要限制可以使用相同密钥（或密码）进行登记的次数，在配置文件中将 ``registry.maxenrollments`` 设置为适当的值。如果将值设置为1，则Fabric CA服务器允许密码只用于一次特定的登记。如果将值设置为 -1 ，则Fabric CA服务器不会限制可以重新使用密钥进行登记的次数。默认值为-1。将值设置为0，Fabric CA服务器将禁止所有身份的登记，并且不允许身份注册。
 
-The Fabric CA server should now be listening on port 7054.
+Fabric CA服务器现在应该在端口7054上监听。
 
-You may skip to the `Fabric CA Client <#fabric-ca-client>`__ section if
-you do not want to configure the Fabric CA server to run in a cluster or
-to use LDAP.
+如果你不想将Fabric CA服务器配置为在群集中运行或使用LDAP ，则可以跳至 `Fabric CA Client <#fabric-ca-client>`__ 部分。
 
 Configuring the database
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1036,27 +1020,23 @@ To display summary information from the haproxy "show stat" command, the followi
 Fabric CA Client
 ----------------
 
-This section describes how to use the fabric-ca-client command.
+本节介绍如何使用fabric-ca-client命令。
 
-The Fabric CA client's home directory is determined as follows:
-  - if the --home command line option is set, use its value
-  - otherwise, if the ``FABRIC_CA_CLIENT_HOME`` environment variable is set, use
-    its value
-  - otherwise, if the ``FABRIC_CA_HOME`` environment variable is set,
-    use its value
-  - otherwise, if the ``CA_CFG_PATH`` environment variable is set, use
-    its value
-  - otherwise, use ``$HOME/.fabric-ca-client``
+Fabric CA客户端的home目录确定如下：
+  - 如果设置了--home命令行选项，则使用其值
+  - 否则，如果设置了 ``FABRIC_CA_CLIENT_HOME`` 环境变量，则使用其值
+  - 否则，如果设置了 ``FABRIC_CA_HOME`` 环境变量，则使用其值
+  - 否则，如果设置了 ``CA_CFG_PATH`` 环境变量，则使用其值
+  - 否则，使用 ``$HOME/.fabric-ca-client``
 
-The instructions below assume that the client configuration file exists
-in the client's home directory.
+以下使用说明假定客户端配置文件存在于客户端的home目录中。
 
 Enrolling the bootstrap identity
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-First, if needed, customize the CSR (Certificate Signing Request) section
-in the client configuration file. Note that ``csr.cn`` field must be set
-to the ID of the bootstrap identity. Default CSR values are shown below:
+注册引导身份
+
+首先，如果需要，在客户端配置文件中自定义CSR（Certificate Signing Request，证书签名请求）部分。请注意，该 ``csr.cn`` 字段必须设置为引导身份的ID。默认CSR值如下所示：
 
 .. code:: yaml
 
@@ -1078,70 +1058,35 @@ to the ID of the bootstrap identity. Default CSR values are shown below:
         pathlenzero:
         expiry:
 
-See `CSR fields <#csr-fields>`__ for description of the fields.
+有关字段的说明，请参阅 `CSR fields <#csr-fields>`__
 
-Then run ``fabric-ca-client enroll`` command to enroll the identity. For example,
-following command enrolls an identity whose ID is **admin** and password is **adminpw**
-by calling Fabric CA server that is running locally at 7054 port.
+然后运行 ``fabric-ca-client enroll`` 命令以注册身份。例如，以下命令通过调用本地运行在7054端口的Fabric CA服务器来注册ID为 **admin** 且密码为 **adminpw** 的身份。
 
 .. code:: bash
 
     export FABRIC_CA_CLIENT_HOME=$HOME/fabric-ca/clients/admin
     fabric-ca-client enroll -u http://admin:adminpw@localhost:7054
 
-The enroll command stores an enrollment certificate (ECert), corresponding private key and CA
-certificate chain PEM files in the subdirectories of the Fabric CA client's ``msp`` directory.
-You will see messages indicating where the PEM files are stored.
+enroll命令在Fabric CA客户端的 ``msp`` 目录的子目录中存储登记证书（enrollment certificate，ECert），相应的私钥和CA证书链PEM文件。你将看到提示PEM文件存储位置的消息。
 
 Registering a new identity
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The identity performing the register request must be currently enrolled, and
-must also have the proper authority to register the type of the identity that is being
-registered.
+注册一个新身份
 
-In particular, three authorization checks are made by the Fabric CA server
-during registration as follows:
+执行注册请求的身份当前必须已登记，并且还必须具有注册正在被注册的身份类型的适当权限。
 
-1. The registrar (i.e. the invoker) must have the "hf.Registrar.Roles" attribute with a
-   comma-separated list of values where one of the values equals the type of
-   identity being registered; for example, if the registrar has the
-   "hf.Registrar.Roles" attribute with a value of "peer,app,user", the registrar
-   can register identities of type peer, app, and user, but not orderer.
+特别是，Fabric CA服务器在注册期间进行了三次授权检查，如下所示：
 
-2. The affiliation of the registrar must be equal to or a prefix of
-   the affiliation of the identity being registered.  For example, an registrar
-   with an affiliation of "a.b" may register an identity with an affiliation
-   of "a.b.c" but may not register an identity with an affiliation of "a.c".
-   If root affiliation is required for an identity, then the affiliation request
-   should be a dot (".") and the registrar must also have root affiliation.
-   If no affiliation is specified in the registration request, the identity being
-   registered will be given the affiliation of the registrar.
+1. 注册者（即调用者）必须具有 "hf.Registrar.Roles" 属性，其中包含逗号分隔的值列表，其中一个值等于要注册的身份类型; 例如，如果注册者具有值为 "peer,app,user" 的 "hf.Registrar.Roles" 属性，则注册者可以注册peer，app和user类型的身份，但不能注册orderer。
 
-3. The registrar can register a user with attributes if all of the following conditions
-   are satisfied:
+2. 注册者的隶属关系必须等于所注册身份的隶属关系或是其前缀。例如，具有 "a.b" 的隶属关系的注册者可以注册具有 "a.b.c" 的隶属关系的身份，但是可以不注册具有 "a.c" 的隶属关系的身份。如果一个身份需要root隶属关系，则隶属请求应为一个点 (".") ，并且注册者也必须具有root隶属关系。如果在注册请求中未指定任何隶属关系，则被注册的身份将被授予注册者的隶属关系。
 
-   - Registrar can register Fabric CA reserved attributes that have the prefix 'hf.'
-     only if the registrar possesses the attribute and it is part of the value of the
-     hf.Registrar.Attributes' attribute. Furthermore, if the attribute is of type list
-     then the value of attribute being registered must be equal to or a subset of the
-     value that the registrar has. If the attribute is of type boolean, the registrar
-     can register the attribute only if the registrar's value for the attribute is 'true'.
-   - Registering custom attributes (i.e. any attribute whose name does not begin with 'hf.')
-     requires that the registrar has the 'hf.Registar.Attributes' attribute with the value of
-     the attribute or pattern being registered. The only supported pattern is a string with
-     a "*" at the end. For example, "a.b.*" is a pattern which matches all attribute names
-     beginning with "a.b.". For example, if the registrar has hf.Registrar.Attributes=orgAdmin,
-     then the only attribute which the registrar can add or remove from an identity is the
-     'orgAdmin' attribute.
-   - If the requested attribute name is 'hf.Registrar.Attributes', an additional
-     check is performed to see if the requested values for this attribute are equal
-     to or a subset of the registrar's values for 'hf.Registrar.Attributes'. For this
-     to be true, each requested value must match a value in the registrar's value for
-     'hf.Registrar.Attributes' attribute. For example, if the registrar's value for
-     'hf.Registrar.Attributes' is 'a.b.*, x.y.z' and the requested attribute
-     value is 'a.b.c, x.y.z', it is valid because 'a.b.c' matches 'a.b.*' and 'x.y.z'
-     matches the registrar's 'x.y.z' value.
+3. 如果满足以下所有条件，注册者可以注册带有属性的用户：
+
+   - 注册器可以注册具有前缀 'hf.' 的Fabric CA保留属性（只有当注册者拥有该属性并且它是 hf.Registrar.Attributes' 属性的值的一部分时）。此外，如果属性是类型列表，则注册的属性值必须等于注册者具有的值的一个子集。如果属性的类型为boolean，则只有当注册者的该属性值为 'true' 时，注册者才能注册该属性。
+   - 注册自定义属性（即名称不以 'hf.' 开头的任何属性）要求注册者具有 'hf.Registar.Attributes' 属性，其中包含要注册的属性或模式的值。唯一支持的模式是末尾带有 "*" 的字符串。例如， "a.b.*" 是匹配以"a.b."开头的所有属性名称的模式。例如，如果注册者具有hf.Registrar.Attributes=orgAdmin，则注册者可以在身份中添加或删除的唯一属性是 'orgAdmin' 属性。
+   - 如果请求的属性名称为 'hf.Registrar.Attributes' ，则执行附加检查以查看此属性的请求值是否等于注册者的 'hf.Registrar.Attributes' 值或是其子集。为此，每个请求的值必须与注册者的 'hf.Registrar.Attributes' 属性值相匹配。例如，如果注册者的 'hf.Registrar.Attributes' 的值为 'a.b.*, x.y.z' ，且请求的属性值为 'a.b.c, x.y.z' ，则它是有效的，因为 'a.b.c' 匹配 'a.b.*' ， 'x.y.z' 匹配注册者的 'x.y.z' 值。
 
 Examples:
    Valid Scenarios:
