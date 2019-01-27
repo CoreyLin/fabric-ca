@@ -216,35 +216,25 @@ Explore the Fabric CA CLI
 
 为方便起见，本节仅简单为Fabric CA服务器和客户端提供使用消息。之后的部分提供了其他使用信息。
 
-The following links shows the :doc:`Server Command Line <servercli>` and
+以下链接显示了 :doc:`Server Command Line <servercli>` 和
 :doc:`Client Command Line <clientcli>`.
 
-.. note:: Note that command line options that are string slices (lists) can be
-          specified either by specifying the option with comma-separated list
-          elements or by specifying the option multiple times, each with a
-          string value that make up the list. For example, to specify
-          ``host1`` and ``host2`` for the ``csr.hosts`` option, you can either
-          pass ``--csr.hosts 'host1,host2'`` or
-          ``--csr.hosts host1 --csr.hosts host2``. When using the former format,
-          please make sure there are no space before or after any commas.
+.. note:: 请注意，可以通过使用逗号分隔的列表元素指定选项或通过多次指定选项（每个选项都包含组成列表的字符串值）来指定作为字符串切片（列表）的命令行选项。 例如，为 ``csr.hosts`` 选项指定 ``host1`` 和 ``host2`` ，你可以传递 ``--csr.hosts 'host1,host2'`` 或 ``--csr.hosts host1 --csr.hosts host2`` 。使用以前的格式时，请确保在逗号之前或之后没有空格。
 
 `Back to Top`_
 
 Configuration Settings
 ~~~~~~~~~~~~~~~~~~~~~~
 
-The Fabric CA provides 3 ways to configure settings on the Fabric CA server
-and client. The precedence order is:
+Fabric CA提供了3种方法来配置Fabric CA服务器和客户端上的设置。优先顺序是：
 
   1. CLI flags
-  2. Environment variables
-  3. Configuration file
+  2. 环境变量
+  3. 配置文件
 
-In the remainder of this document, we refer to making changes to
-configuration files. However, configuration file changes can be
-overridden through environment variables or CLI flags.
+在本文档的其余部分中，我们将参考配置文件的更改。但是，可以通过环境变量或CLI flag覆盖配置文件的更改。
 
-For example, if we have the following in the client configuration file:
+例如，如果我们在客户端配置文件中有以下内容：
 
 .. code:: yaml
 
@@ -258,15 +248,13 @@ For example, if we have the following in the client configuration file:
         certfile: cert.pem
         keyfile:
 
-The following environment variable may be used to override the ``cert.pem``
-setting in the configuration file:
+以下环境变量可用于覆盖配置文件中的设置 ``cert.pem`` ：
 
 .. code:: bash
 
   export FABRIC_CA_CLIENT_TLS_CLIENT_CERTFILE=cert2.pem
 
-If we wanted to override both the environment variable and configuration
-file, we can use a command line flag.
+如果我们想要同时覆盖环境变量和配置文件，我们可以使用命令行flag。
 
 .. code:: bash
 
@@ -275,19 +263,13 @@ file, we can use a command line flag.
 The same approach applies to fabric-ca-server, except instead of using
 ``FABIRC_CA_CLIENT`` as the prefix to environment variables,
 ``FABRIC_CA_SERVER`` is used.
+除了使用 ``FABIRC_CA_CLIENT`` 作为环境变量的前缀之外，相同的方法适用于fabric-ca-server， ``FABRIC_CA_SERVER`` 前缀可以被使用。
 
 .. _server:
 
 A word on file paths
 ^^^^^^^^^^^^^^^^^^^^^
-All the properties in the Fabric CA server and client configuration file
-that specify file names support both relative and absolute paths.
-Relative paths are relative to the config directory, where the
-configuration file is located. For example, if the config directory is
-``~/config`` and the tls section is as shown below, the Fabric CA server
-or client will look for the ``root.pem`` file in the ``~/config``
-directory, ``cert.pem`` file in the ``~/config/certs`` directory and the
-``key.pem`` file in the ``/abs/path`` directory
+Fabric CA服务器和客户端配置文件中指定文件名的所有属性都支持相对路径和绝对路径。相对路径相对于配置文件所在的config目录。例如，如果配置目录是 ``~/config`` ，TLS部分如下所示，Fabric CA服务器或客户端将在 ``~/config`` 中寻找 ``root.pem`` 文件，在 ``~/config/certs`` 目录中寻找 ``cert.pem`` 文件，在 ``/abs/path`` 目录中寻找 ``key.pem`` 文件。
 
 .. code:: yaml
 
@@ -306,46 +288,35 @@ directory, ``cert.pem`` file in the ``~/config/certs`` directory and the
 Fabric CA Server
 ----------------
 
-This section describes the Fabric CA server.
+本节介绍Fabric CA服务器。
 
-You may initialize the Fabric CA server before starting it. This provides an
-opportunity for you to generate a default configuration file that can be
-reviewed and customized before starting the server.
+你可以在启动之前初始化Fabric CA服务器。这为你提供了一个生成默认配置文件的机会，可以在启动服务器之前对其进行检查和自定义。
 
-The Fabric CA server's home directory is determined as follows:
-  - if the --home command line option is set, use its value
-  - otherwise, if the ``FABRIC_CA_SERVER_HOME`` environment variable is set, use
-    its value
-  - otherwise, if ``FABRIC_CA_HOME`` environment variable is set, use
-    its value
-  - otherwise, if the ``CA_CFG_PATH`` environment variable is set, use
-    its value
-  - otherwise, use current working directory
+Fabric CA服务器的home目录确定如下：
+  - 如果设置了--home命令行选项，则使用其值
+  - 否则，如果设置了FABRIC_CA_SERVER_HOME环境变量，则使用其值
+  - 否则，如果设置了FABRIC_CA_HOME环境变量，则使用其值
+  - 否则，如果设置了CA_CFG_PATH环境变量，则使用其值
+  - 否则，使用当前工作目录
 
-For the remainder of this server section, we assume that you have set
-the ``FABRIC_CA_HOME`` environment variable to
-``$HOME/fabric-ca/server``.
+对于服务器部分的剩余部分，我们假设你已将 ``FABRIC_CA_HOME`` 环境变量设置为 ``$HOME/fabric-ca/server`` 。
 
-The instructions below assume that the server configuration file exists
-in the server's home directory.
+以下的使用说明假定服务器配置文件存在于服务器的home目录中。
 
 .. _initialize:
 
 Initializing the server
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Initialize the Fabric CA server as follows:
+按如下方式初始化Fabric CA服务器：
 
 .. code:: bash
 
     fabric-ca-server init -b admin:adminpw
 
-The ``-b`` (bootstrap identity) option is required for initialization when
-LDAP is disabled. At least one bootstrap identity is required to start the
-Fabric CA server; this identity is the server administrator.
+``-b`` （引导身份）选项是在LDAP被禁用时初始化必须的。启动Fabric CA服务器至少需要一个引导身份; 此身份是服务器管理员。
 
-The server configuration file contains a Certificate Signing Request (CSR)
-section that can be configured. The following is a sample CSR.
+服务器配置文件包含一个可配置的证书签名请求（Certificate Signing Request，CSR）部分。以下是CSR示例。
 
 .. _csr-fields:
 
@@ -365,48 +336,24 @@ section that can be configured. The following is a sample CSR.
       expiry: 131400h
       pathlength: 1
 
-All of the fields above pertain to the X.509 signing key and certificate which
-is generated by the ``fabric-ca-server init``.  This corresponds to the
-``ca.certfile`` and ``ca.keyfile`` files in the server's configuration file.
-The fields are as follows:
+上面的所有字段都与X.509签名密钥和由 ``fabric-ca-server init`` 生成的证书有关。这对应于服务器配置文件中的 ``ca.certfile`` 和 ``ca.keyfile`` 指定的文件。字段如下：
 
-  -  **cn** is the Common Name
-  -  **O** is the organization name
-  -  **OU** is the organizational unit
-  -  **L** is the location or city
-  -  **ST** is the state
-  -  **C** is the country
+  -  **cn** 是通用名称（Common Name）
+  -  **O** 是组织名称（organization name）
+  -  **OU** 是组织单位（organizational unit）
+  -  **L** 是地点或城市（location or city）
+  -  **ST** 是州（state） 
+  -  **C** 是国家（country）
 
-If custom values for the CSR are required, you may customize the configuration
-file, delete the files specified by the ``ca.certfile`` and ``ca.keyfile``
-configuration items, and then run the ``fabric-ca-server init -b admin:adminpw``
-command again.
+如果需要CSR的自定义值，你可以自定义配置文件，删除由 ``ca.certfile`` 和 ``ca.keyfile`` 配置项指定的文件，然后再次运行命令 ``fabric-ca-server init -b admin:adminpw`` 。
 
-The ``fabric-ca-server init`` command generates a self-signed CA certificate
-unless the ``-u <parent-fabric-ca-server-URL>`` option is specified.
-If the ``-u`` is specified, the server's CA certificate is signed by the
-parent Fabric CA server.
-In order to authenticate to the parent Fabric CA server, the URL must
-be of the form ``<scheme>://<enrollmentID>:<secret>@<host>:<port>``, where
-<enrollmentID> and <secret> correspond to an identity with an 'hf.IntermediateCA'
-attribute whose value equals 'true'.
-The ``fabric-ca-server init`` command also generates a default configuration
-file named **fabric-ca-server-config.yaml** in the server's home directory.
+命令 ``fabric-ca-server init`` 生成一个自签名的CA证书，除非指定了 ``-u <parent-fabric-ca-server-URL>`` 选项。如果指定了 ``-u`` ，则服务器的CA证书由父Fabric CA服务器签名。为了向父Fabric CA服务器进行身份验证，URL必须是 ``<scheme>://<enrollmentID>:<secret>@<host>:<port>`` 这样的形式，其中 <enrollmentID> 和 <secret> 对应于具有 'hf.IntermediateCA' 属性且其值等于 'true' 的身份（identity）。 ``fabric-ca-server init`` 命令还会在服务器的home目录中生成名为 **fabric-ca-server-config.yaml** 的默认配置文件。
 
-If you want the Fabric CA server to use a CA signing certificate and key file which you provide,
-you must place your files in the location referenced by ``ca.certfile`` and ``ca.keyfile`` respectively.
-Both files must be PEM-encoded and must not be encrypted.
-More specifically, the contents of the CA certificate file must begin with ``-----BEGIN CERTIFICATE-----``
-and the contents of the key file must begin with ``-----BEGIN PRIVATE KEY-----`` and not
-``-----BEGIN ENCRYPTED PRIVATE KEY-----``.
+如果你想在Fabric CA服务器使用你提供的CA签名证书和密钥文件，你必须把你的文件分别放在被 ``ca.certfile`` 和 ``ca.keyfile`` 引用的位置。这两个文件都必须是PEM编码的，不得加密。更具体地说，CA证书文件的内容必须以 ``-----BEGIN CERTIFICATE-----`` 开头，并且密钥文件的内容必须以 ``-----BEGIN PRIVATE KEY-----`` 而不是 ``-----BEGIN ENCRYPTED PRIVATE KEY-----`` 开头。
 
-Algorithms and key sizes
+算法和密钥大小
 
-The CSR can be customized to generate X.509 certificates and keys that
-support Elliptic Curve (ECDSA). The following setting is an
-example of the implementation of Elliptic Curve Digital Signature
-Algorithm (ECDSA) with curve ``prime256v1`` and signature algorithm
-``ecdsa-with-SHA256``:
+可以自定义CSR以生成支持椭圆曲线（ECDSA）的X.509证书和密钥。以下设置是使用曲线 ``prime256v1`` 和签名算法 ``ecdsa-with-SHA256`` 实现椭圆曲线数字签名算法（ECDSA）的示例：
 
 .. code:: yaml
 
@@ -414,9 +361,9 @@ Algorithm (ECDSA) with curve ``prime256v1`` and signature algorithm
        algo: ecdsa
        size: 256
 
-The choice of algorithm and key size are based on security needs.
+算法和密钥大小的选择基于安全需求。
 
-Elliptic Curve (ECDSA) offers the following key size options:
+椭圆曲线（ECDSA）提供以下密钥大小选项：
 
 +--------+--------------+-----------------------+
 | size   | ASN1 OID     | Signature Algorithm   |
@@ -431,17 +378,13 @@ Elliptic Curve (ECDSA) offers the following key size options:
 Starting the server
 ~~~~~~~~~~~~~~~~~~~
 
-Start the Fabric CA server as follows:
+启动Fabric CA服务器，如下所示：
 
 .. code:: bash
 
     fabric-ca-server start -b <admin>:<adminpw>
 
-If the server has not been previously initialized, it will initialize
-itself as it starts for the first time.  During this initialization, the
-server will generate the ca-cert.pem and ca-key.pem files if they don't
-yet exist and will also create a default configuration file if it does
-not exist.  See the `Initialize the Fabric CA server <#initialize>`__ section.
+如果服务器之前没有被初始化，它将在第一次启动时自行初始化。在此初始化期间，服务器将生成ca-cert.pem和ca-key.pem文件（如果它们尚不存在），并且还将创建一个默认配置文件（如果它尚不存在）。请参阅 `Initialize the Fabric CA server <#initialize>`__ 部分。
 
 Unless the Fabric CA server is configured to use LDAP, it must be
 configured with at least one pre-registered bootstrap identity to enable you
